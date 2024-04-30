@@ -66,6 +66,7 @@ struct ContentView : View{
             
     }
     
+    
 func SelectKeyPad(_ buttonText : String){
     
     switch buttonText {
@@ -79,6 +80,7 @@ func SelectKeyPad(_ buttonText : String){
         }
             recent += buttonText
             return
+        
         case "AC":
             result = 0
             recent = "0"
@@ -86,39 +88,32 @@ func SelectKeyPad(_ buttonText : String){
             firstInput = true
             return
         case ".":
-        if(recent.contains(".")){
-            return
-        }else{
-            recent += buttonText
-        }
+            if(recent.contains(".")){
+                return
+            }else{
+                recent += buttonText
+            }
             return
         case "+/-":
             return
-        case "%":
-            
+        case "+", "-", "%", "X", "/":
+            if(firstInput == true){
+                complateNumber = recent
+                recent = "0"
+                firstInput = false
+            }
+            else{
+                if(recent.contains(".") || complateNumber.contains(".")){
+                 floatCaculator(buttonText)
+                }
+                caculator(buttonText);
+            }
             return
-        case "/":
-             
-            return
-        case "X":
-             
-            return
-        case "-":
-             
-            return
-        case "+":
-        if(firstInput == true){
-            complateNumber = recent
-            recent = "0"
-            firstInput = false
-        }else{
-            caculator(buttonText);
-        }
-             
-            return
+        
         case "=":
              
             return
+        
         default:
             return
     }
@@ -127,13 +122,14 @@ func SelectKeyPad(_ buttonText : String){
  
     // 정수 연산.
     func caculator(_ buttonText : String){
-        
+//        switch (sign)
         let left:Int = Int(complateNumber)!
         let Right : Int = Int(recent)!
         result = left + Right
         complateNumber = String(result)
         recent = "0"
     }
+    
     // 실수 연산
     func floatCaculator(_ buttonText : String){
         
