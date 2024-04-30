@@ -9,20 +9,23 @@ import SwiftUI
 
 // 메인뷰
 struct ContentView : View{
-    // * result : 결과 값을 가지고 있다. equal 입력 시 해당 변수에 값을 넣는 형태. 마지막에 해당값을 통해 recent :String으로 변환 후 출력 
+    
+    // * MacOs에서 기본제공 되는 계산기는 값이 들어오고 연산기호가 눌리면 새 값을 받는 형태. 그 상태에서 기호가 새로 들어온다면
+    // * 입력된 값들이 계산되는 형태.
+    // * result : 결과 값을 가지고 있다. -> Eqaul을 사용하였을 때 값을 계산하기 위함. Int형 변수. 결과값을 저장.
+    
     @State var result : Int = 0
-    // * 현재 입력값 위에 보이는 작은 텍스트 -> 지금까지 입력한 값과 기호를 출력해준다.
-    @State var subText : String = ""
-    // * 현재 입력중인 값
+    @State var complateNumber : String = ""
     @State var recent : String = ""
-    // * 부호
     @State var sign : String = ""
-    // * 튜플로 변경해야할까? 
-    @State var resultArr : Array = []
-    var exeCalculator = false;
+    
+    // complateNumber에 값이 존재한다면 firstInput을 false로 바꿈으로써 계산기의 기본적인 로직을 처리.
+    
     @State var firstInput = true;
+    
     // 동적으로 버튼을 생성하기 위해 배열을 Vstack을 내부에서 ForEach 사용
     // ForEach -> 뷰를 대상으로 작동하는 구조체
+    
     var buttons = [
         ["AC", "+/-", "%", "/"],
         ["7","8","9","X"],
@@ -33,15 +36,17 @@ struct ContentView : View{
     
     var count = 0;
     var body: some View{
-        
         VStack(spacing: 20){
-            Text(subText)
+            Text(complateNumber)
             Text(recent)
                 .font(.largeTitle)
             ForEach(buttons, id : \.self){
                 ele in HStack{
+                    
                     ForEach(ele, id : \.self){
+                        
                         subEle in Button(action: {SelectKeyPad(subEle)}, label: {
+                            
                             Text("\(subEle)")
                                 .frame(
                                     width: 25,
@@ -62,6 +67,7 @@ struct ContentView : View{
     }
     
 func SelectKeyPad(_ buttonText : String){
+    
     switch buttonText {
         case "0"..."9":
         if(recent.prefix(1) == "0"){
@@ -76,7 +82,8 @@ func SelectKeyPad(_ buttonText : String){
         case "AC":
             result = 0
             recent = "0"
-            subText = "0"
+            complateNumber = "0"
+            firstInput = true
             return
         case ".":
         if(recent.contains(".")){
@@ -88,22 +95,29 @@ func SelectKeyPad(_ buttonText : String){
         case "+/-":
             return
         case "%":
-            sign = "%"
+            
             return
         case "/":
-            sign = "/"
+             
             return
         case "X":
-            sign = "X"
+             
             return
         case "-":
-            sign = "-"
+             
             return
         case "+":
-            sign = "+"
+        if(firstInput == true){
+            complateNumber = recent
+            recent = "0"
+            firstInput = false
+        }else{
+            caculator(buttonText);
+        }
+             
             return
         case "=":
-            sign = ""
+             
             return
         default:
             return
@@ -111,8 +125,23 @@ func SelectKeyPad(_ buttonText : String){
         
 }
  
-    func caculator(){
+    // 정수 연산.
+    func caculator(_ buttonText : String){
         
+        let left:Int = Int(complateNumber)!
+        let Right : Int = Int(recent)!
+        result = left + Right
+        complateNumber = String(result)
+        recent = "0"
+    }
+    // 실수 연산
+    func floatCaculator(_ buttonText : String){
+        
+        let left:Int = Int(complateNumber)!
+        let Right : Int = Int(recent)!
+        result = left + Right
+        complateNumber = String(result)
+        recent = "0"
     }
     
 }
