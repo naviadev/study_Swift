@@ -16,16 +16,14 @@ struct ContentView : View{
     
     @State var result : Int = 0
     @State var resultFloat : Float = 0
-    @State var complateNumber : String = ""
-    @State var recent : String = ""
+    @State var complateNumber : String = "0"
+    @State var recent : String = "0"
     @State var sign : String = ""
     // 실수 계산을 판단 -> 값에 . 이 들어온다면 해당값을 true로 변경하여 실수용을 호출할 수 있도록.
     @State var dicimal : Bool = false
     @State var checkEqual : Bool = false
     
-    // complateNumber에 값이 존재한다면 firstInput을 false로 바꿈으로써 계산기의 기본적인 로직을 처리.
     
-    @State var firstInput = true;
     
     // 동적으로 버튼을 생성하기 위해 배열을 Vstack을 내부에서 ForEach 사용
     // ForEach -> 뷰를 대상으로 작동하는 구조체
@@ -74,97 +72,117 @@ struct ContentView : View{
     
 func SelectKeyPad(_ buttonText : String){
     
-    switch buttonText {
-        case "0"..."9":
-        if(recent.prefix(1) == "0"){
-            if(buttonText != "0"){
-                recent = ""
-                recent += buttonText
-            }
-            break
-        }
-            recent += buttonText
-            return
-        
-        case "AC":
-            result = 0
-            recent = "0"
-            complateNumber = "0"
-            firstInput = true
-            return
-        
-        case ".":
-            if(recent.contains(".")){
+    
+        switch buttonText {
+            case "0"..."9":
+            //equal을 누른 상태에서 바로 부호 없이 다음 숫자가 들어온다면
+            if(checkEqual == true){complateNumber = "0"}
+            // 0이 존재하는 상태에서 0이 들어왔다면.
+            if(recent.prefix(1) == "0" && buttonText == "0"){
+                recent.contains(".") ? (recent += buttonText) : (recent = "0")
                 return
-            }else{
-                recent += buttonText
             }
-            return
-        
-        case "+/-":
-            return
-        
-        case "=":
-            checkEqual = true // 이퀄 다음에 부호가 오면 다음 연산을 , 숫자가 오면 누적값을 초기화.
-            caculator(buttonText)
-            return
-        
-        default:
-        
-        
-            if(firstInput == true){
-                complateNumber = recent
+            // 0만 존재하는 상태에서 버튼이 들어왔다면.
+            if(recent.prefix(1) == "0" && recent.count == 1){
+                recent = buttonText
+                return
+            }
+            // 모두 아니라면 recent값에 버튼값을 추가.
+                recent += buttonText
+                return
+            
+            // AC 초기화 버튼
+            case "AC":
+                result = 0
                 recent = "0"
-                firstInput = false
-                sign = "\(buttonText)"
+                complateNumber = "0"
+                return
+            
+            case ".":
+            if(recent.contains(".")){
+                    return
+                }else{
+                    recent += buttonText
+                }
+                return
+            
+            case "+/-":
+            if(recent.contains("-")){
+                let i = recent.split(separator: "-")
+             
+                return
             }
             else{
-                if(recent.contains(".") || complateNumber.contains(".")){
-                 floatCaculator(buttonText)
-                }
-                caculator(buttonText);
+                recent = "-" + recent
+                return
             }
-            return
-    }
-        
-}
  
-    // 정수 연산.
-    func caculator(_ buttonText : String){
-        
-        let left:Int = Int(complateNumber)!
-        let Right : Int = Int(recent)!
-        
-        switch (sign){
-        case "=":
-            return
-        case "+" :
-            result = left + Right
-            complateNumber = String(result)
-            recent = "0"
-            break
-        case "-":
-            result = left - Right
-            complateNumber = String(result)
-            recent = "0"
-            return
-        case "X":
-            result = left * Right
-            complateNumber = String(result)
-            recent = "0"
-        case "/":
-            result = left / Right
-            complateNumber = String(result)
-            recent = "0"
-        case "%":
-            result = left / Right
-            complateNumber = String(result)
-            recent = "0"
-        
-        default:
-            return
-        }
-      sign = buttonText
+                
+            
+            case "=":
+                 // 이퀄 다음에 부호가 오면 다음 연산을 , 숫자가 오면 누적값을 초기화.
+                caculator(sign)
+                sign = ""
+                checkEqual = true
+                return
+            
+            default:
+            // 오퍼레이터 입력이 처음이라면
+            if(checkEqual == true){checkEqual = false}
+                if(complateNumber == "0"){
+                    complateNumber = recent
+                    recent = "0"
+                    sign = "\(buttonText)"
+                }
+                else{
+                    if(recent.contains(".") || complateNumber.contains(".")){
+                     floatCaculator(buttonText)
+                    }
+                    caculator(buttonText);
+                }
+                return
+
+            
+    }
+     
+        // 정수 연산.
+        func caculator(_ buttonText : String){
+            
+           
+            
+            let left:Int = Int(complateNumber)!
+            let Right : Int = Int(recent)!
+            
+            switch (sign){
+            case "+" :
+                result = left + Right
+                complateNumber = String(result)
+                recent = "0"
+                break
+            case "-":
+                result = left - Right
+                complateNumber = String(result)
+                recent = "0"
+                return
+            case "X":
+                result = left * Right
+                complateNumber = String(result)
+                recent = "0"
+            case "/":
+                result = left / Right
+                complateNumber = String(result)
+                recent = "0"
+            case "%":
+                result = left / Right
+                complateNumber = String(result)
+                recent = "0"
+            
+            default:
+                return
+            }
+            sign = buttonText
+    }
+
     }
     
     // 실수 연산
